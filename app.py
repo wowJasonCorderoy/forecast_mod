@@ -49,7 +49,8 @@ if "df_changelog" not in st.session_state:
 # df_all = gen_df()
 
 with st.expander("File Upload", True):
-    uploaded_file=st.file_uploader("Choose a file")
+    uploaded_file=st.file_uploader("Choose a (csv) file (Must contain the following columns 'article', 'category', 'subcategory', 'segment', 'department', 'pricefamily', 'date', 'sales', 'qty', 'asp')",
+    type='csv',)
 
     if uploaded_file is not None:
         dtypes = {"asp": np.float64, "sales": np.float64, "qty": np.float64}
@@ -331,7 +332,10 @@ with st.expander("View line plots:", True):
         for i in f_plotLines:
             if i.startswith("adj_"):
                 continue
-            i_c = [i] + ["adj_" + i]
+            if f_include_adjustments:
+                i_c = [i] + ["adj_" + i]
+            else:
+                i_c = [i]
             fig_multi = px.line(
                 fig_multi_data,  # [['date',i]],
                 x="date",
@@ -349,11 +353,18 @@ with st.expander("View line plots:", True):
 # st.dataframe(st.session_state.df_changelog)
 
 
-with st.expander("View Changelog:"):
+with st.expander("Changelog:"):
+
+    uploaded_file_changelog=st.file_uploader("Upload changelog (JSON)", type='json')
+
+    if uploaded_file_changelog is not None:
+        st.session_state.df_changelog = pd.read_json(uploaded_file_changelog)
+
     st.download_button(
-        "Download changelog",
-        data=st.session_state.df_changelog.to_csv(index=True),
-        file_name="changelog.csv",
+        "Download changelog (JSON)",
+        #data=st.session_state.df_changelog.to_csv(index=True),
+        data=st.session_state.df_changelog.to_json(),
+        file_name="changelog.json",
     )
 
     # show_ch_btn = st.checkbox("show change log")
