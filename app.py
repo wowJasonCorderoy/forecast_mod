@@ -209,69 +209,76 @@ df = (
 )
 
 with st.expander("Scenario modelling:"):
-    #st.sidebar.markdown("**Make adjustments:**")
-    f_date = st.slider(
-        "Select date:",
-        # value=(min(df['date']), max(df['date'])),
-        value=(datetime.date(min(df["date"])), datetime.date(max(df["date"]))),
-        step=timedelta(days=7),
-    )
+    with st.form(key='my_form'):
+        #with st.expander("Scenario modelling:"):
+        #st.sidebar.markdown("**Make adjustments:**")
+        f_date = st.slider(
+            "Select date:",
+            # value=(min(df['date']), max(df['date'])),
+            value=(datetime.date(min(df["date"])), datetime.date(max(df["date"]))),
+            step=timedelta(days=7),
+        )
 
-    f_var = st.selectbox(
-        "Select variable(s):",
-        options=["asp", "qty"],
-        # default=['asp'],
-    )
+        f_var = st.selectbox(
+            "Select variable(s):",
+            options=["asp", "qty"],
+            # default=['asp'],
+        )
 
-    f_op = st.selectbox(
-        "Select operation:",
-        options=["*", "/", "+", "-"],
-        # default=['asp'],
-    )
+        f_op = st.selectbox(
+            "Select operation:",
+            options=["*", "/", "+", "-"],
+            # default=['asp'],
+        )
 
-    f_val = st.number_input(
-        "Enter Operand:",
-        value=1.00,
-        step=0.01,
-    )
+        f_val = st.number_input(
+            "Enter Operand:",
+            value=1.00,
+            step=0.01,
+        )
 
-    #if (f_date != []) and (f_var != []):
-        ## st.sidebar.text(f"Function:\n{f_var} {f_op} {f_val}\n to be applied to dates:\n{[x.strftime('%Y-%m-%d') for x in f_date]}")
-        #st.sidebar.text(
-            #f"Function:\n{f_var} {f_op} {f_val}\n to be applied to dates:\n{f_date[0]} to {f_date[1]}"
-        #)
+        #if (f_date != []) and (f_var != []):
+            ## st.sidebar.text(f"Function:\n{f_var} {f_op} {f_val}\n to be applied to dates:\n{[x.strftime('%Y-%m-%d') for x in f_date]}")
+            #st.sidebar.text(
+                #f"Function:\n{f_var} {f_op} {f_val}\n to be applied to dates:\n{f_date[0]} to {f_date[1]}"
+            #)
 
-    f_explained = st.text_input("Write an explanation")
+        f_explained = st.text_input("Write an explanation")
 
-# on submit update change log
-# if changelog doesn't exist then create it else append submitted changes.
+    # on submit update change log
+    # if changelog doesn't exist then create it else append submitted changes.
 
 
-    def onClick_submit_btn():
-        # if submit_btn:
-        c_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        df_current_changes = (
-            pd.DataFrame({"change_request_dt": [c_datetime]})
-            .merge(
-                pd.DataFrame({"date_from": [f_date[0]], "date_to": [f_date[1]]}),
-                how="cross",
+        def onClick_submit_btn():
+            # if submit_btn:
+            c_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            df_current_changes = (
+                pd.DataFrame({"change_request_dt": [c_datetime]})
+                .merge(
+                    pd.DataFrame({"date_from": [f_date[0]], "date_to": [f_date[1]]}),
+                    how="cross",
+                )
+                .merge(pd.DataFrame({"variable": [f_var]}), how="cross")
+                .merge(pd.DataFrame({"operation": [f_op]}), how="cross")
+                .merge(pd.DataFrame({"operand": [f_val]}), how="cross")
+                .merge(pd.DataFrame({"explanation": [f_explained]}), how="cross")
+                .merge(pd.DataFrame({"dept": [st.session_state["f_dept"]]}), how="cross")
+                .merge(pd.DataFrame({"cat": [st.session_state["f_cat"]]}), how="cross")
+                .merge(pd.DataFrame({"subcat": [st.session_state["f_subcat"]]}), how="cross")
+                .merge(pd.DataFrame({"segment": [st.session_state["f_segment"]]}), how="cross")
+                .merge(pd.DataFrame({"article": [st.session_state["f_article"]]}), how="cross")
             )
-            .merge(pd.DataFrame({"variable": [f_var]}), how="cross")
-            .merge(pd.DataFrame({"operation": [f_op]}), how="cross")
-            .merge(pd.DataFrame({"operand": [f_val]}), how="cross")
-            .merge(pd.DataFrame({"explanation": [f_explained]}), how="cross")
-            .merge(pd.DataFrame({"dept": [st.session_state["f_dept"]]}), how="cross")
-            .merge(pd.DataFrame({"cat": [st.session_state["f_cat"]]}), how="cross")
-            .merge(pd.DataFrame({"subcat": [st.session_state["f_subcat"]]}), how="cross")
-            .merge(pd.DataFrame({"segment": [st.session_state["f_segment"]]}), how="cross")
-            .merge(pd.DataFrame({"article": [st.session_state["f_article"]]}), how="cross")
-        )
-        # have to work with session state so that dateframe persists between reruns
-        st.session_state.df_changelog = pd.concat(
-            [st.session_state.df_changelog, df_current_changes], ignore_index=True
-        )
+            # have to work with session state so that dateframe persists between reruns
+            st.session_state.df_changelog = pd.concat(
+                [st.session_state.df_changelog, df_current_changes], ignore_index=True
+            )
 
-    submit_btn = st.button("submit change", on_click=onClick_submit_btn)
+        #submit_btn = st.button("submit change", on_click=onClick_submit_btn)
+        submit_btn = st.form_submit_button("submit change", on_click=onClick_submit_btn)
+        
+
+# if submit_btn:
+    # onClick_submit_btn()
 
 with st.expander("Plot controls:"):
     f_plotLines = st.multiselect(
