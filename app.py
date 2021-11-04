@@ -19,8 +19,6 @@ st.set_page_config(
     layout="wide",
 )
 
-submit_btn = st.button("refresh plots")
-
 ### define session state
 if "df_changelog" not in st.session_state:
     st.session_state["df_changelog"] = pd.DataFrame(
@@ -321,7 +319,7 @@ else:  # normlize time!
 
 # If plot multiple plot is selected then 1 plot per 'plot selection' else just 1 plot
 
-with st.expander("View line plots:", True):
+with st.expander("View line plots:", False):
 
     if not multiple_plots_checkbox:
         fig_multi = px.line(
@@ -368,10 +366,12 @@ with st.expander("Changelog:"):
 
     if uploaded_file_changelog is not None:
         st.session_state.df_changelog = pd.read_json(uploaded_file_changelog)
+        st.session_state.df_changelog['date_from'] = [x.date() for x in pd.to_datetime(st.session_state.df_changelog['date_from'])]
+        st.session_state.df_changelog['date_to'] = [x.date() for x in pd.to_datetime(st.session_state.df_changelog['date_to'])]
 
     st.download_button(
         "Download changelog (JSON)",
-        #data=st.session_state.df_changelog.to_csv(index=True),
+        #data=st.session_state.df_changelog.to_json(date_format="iso"),
         data=st.session_state.df_changelog.to_json(),
         file_name="changelog.json",
     )
@@ -408,9 +408,9 @@ with st.expander("Changelog:"):
             except:
                 pass
 
+    
     # show_ch_btn = st.checkbox("show change log")
     dl_ch_btn = st.button("delete index from changelog", on_click=dl_ch_i)
-
 
 # st.dataframe(df_changes.sort_values('date'))
 
