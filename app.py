@@ -49,11 +49,11 @@ if "df_changelog" not in st.session_state:
 # df_all = gen_df()
 
 with st.expander("File Upload", True):
-    uploaded_file=st.file_uploader("Choose a (csv) file (Must contain the following columns 'article', 'category', 'subcategory', 'segment', 'department', 'pricefamily', 'date', 'sales', 'qty', 'asp')",
+    uploaded_file=st.file_uploader("Choose a (csv) file (Must contain the following columns 'article', 'category', 'subcategory', 'segment', 'department', 'pricefamily', 'date', 'sales', 'qty', 'asp','cogs','gross_profit')",
     type='csv',)
 
     if uploaded_file is not None:
-        dtypes = {"asp": np.float64, "sales": np.float64, "qty": np.float64}
+        dtypes = {"asp": np.float64, "sales": np.float64, "qty": np.float64, 'cogs':np.float64, 'gross_profit': np.float64}
         parse_dates = ["date"]
         df_all = pd.read_csv(uploaded_file, dtype=dtypes, parse_dates=parse_dates)
 
@@ -111,6 +111,7 @@ def make_changelog_Changes(df=df_all, changelog=st.session_state.df_changelog):
         copy_df = pd.concat([changes_df, no_changes_df])
         # update sales given qty and asp
         copy_df["sales"] = copy_df["qty"] * copy_df["asp"]
+        copy_df["gross_profit"] = copy_df["sales"] - copy_df["cogs"]
     return copy_df
 
 
@@ -119,7 +120,7 @@ df_changes = make_changelog_Changes()
 # df_combined combines original df and changes
 df_combined = df_all.merge(
     df_changes.rename(
-        columns={"sales": "adj_sales", "asp": "adj_asp", "qty": "adj_qty"}
+        columns={"sales": "adj_sales", "asp": "adj_asp", "qty": "adj_qty", "cogs": "adj_cogs", "gross_profit": "adj_gross_profit"}
     ),
     how="left",
 )
@@ -200,7 +201,8 @@ df_filtered = df_combined[
 # df is the aggregated dataframe for plotting
 df = (
     df_filtered.groupby("date")
-    .agg({"qty": "sum", "sales": "sum", "adj_qty": "sum", "adj_sales": "sum"})
+    .agg({"qty": "sum", "sales": "sum", "cogs": "sum", "gross_profit": "sum", 
+    "adj_qty": "sum", "adj_sales": "sum", "adj_cogs": "sum", "adj_gross_profit": "sum"})
     .reset_index()
     .sort_values("date")
     .assign(
@@ -221,7 +223,7 @@ with st.expander("Scenario modelling:"):
 
     f_var = st.selectbox(
         "Select variable(s):",
-        options=["asp", "qty"],
+        options=["asp", "qty","cogs"],
         # default=['asp'],
     )
 
@@ -283,8 +285,8 @@ with st.expander("Plot controls:"):
     f_plotLines = st.multiselect(
         "plot selection",
         # options=['sales','qty','asp', 'adj_sales', 'adj_qty', 'adj_asp'],
-        options=["sales", "qty", "asp"],
-        default=["sales", "qty", "asp"],
+        options=["sales", "qty", "asp","cogs","gross_profit"],
+        default=["sales", "qty", "asp","cogs","gross_profit"],
     )
 
     f_include_adjustments = st.checkbox("Incl. changelog adjustments", value=True)
@@ -327,7 +329,7 @@ with st.expander("View line plots:", False):
             x="date",
             y=f_plotLines,
             # hover_name='asp',
-            color_discrete_map={"asp": "royalblue", "qty": "orange", "sales": "firebrick"},
+            color_discrete_map={"asp": "royalblue", "qty": "orange", "sales": "firebrick", "cogs":"yellow","gross_profit":"black"},
             # line_dash_map={'asp':'dash','qty':'dash','sales':'dash','adj_asp':'dot','adj_qty':'dot','adj_sales':'dot'},
             title=f"",
         )
