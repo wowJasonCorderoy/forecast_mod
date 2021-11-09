@@ -132,22 +132,42 @@ df_combined = df_all.merge(
 # st.sidebar.markdown("**Filter Data:**")
 
 with st.expander("Filter data:"):
-    st.session_state["f_dept"] = st.multiselect(
+
+    sa_dept = st.checkbox("Select all Departments", value=True)
+    if sa_dept:
+        options_dept = ['**ALL**']
+    else:
+        options_dept=st.session_state["all_f_dept"].copy()  # top level options = all
+
+    selected_dept = st.multiselect(
         "Select Department:",
-        options=st.session_state["all_f_dept"],  # top level options = all
-        default=st.session_state["all_f_dept"],
+        options=options_dept,
+        default=options_dept,
     )
+
+    if selected_dept != ['**ALL**']:
+        st.session_state["f_dept"] = selected_dept
 
     # update category options based on department selections
     st.session_state["f_cat"] = df_all[
         df_all["department"].isin(st.session_state["f_dept"])
     ]["category"].unique()
 
-    st.session_state["f_cat"] = st.multiselect(
+    sa_cat = st.checkbox("Select all Categories", value=True)
+    if sa_cat:
+        options_cat = ['**ALL**']
+    else:
+        options_cat=st.session_state["f_cat"].copy()  # top level options = all
+
+    selected_cat = st.multiselect(
         "Select Category:",
-        options=st.session_state["f_cat"],
-        default=st.session_state["f_cat"],
+        options=options_cat,
+        default=options_cat,
     )
+
+    if selected_cat != ['**ALL**']:
+        st.session_state["f_cat"] = selected_cat
+
 
     # update subcategory options based on department and category selections
     st.session_state["f_subcat"] = df_all[
@@ -155,11 +175,21 @@ with st.expander("Filter data:"):
         & (df_all["category"].isin(st.session_state["f_cat"]))
     ]["subcategory"].unique()
 
-    st.session_state["f_subcat"] = st.multiselect(
+    sa_subcat = st.checkbox("Select all Sub-Categories", value=True)
+    if sa_subcat:
+        options_subcat = ['**ALL**']
+    else:
+        options_subcat=st.session_state["f_subcat"].copy()  # top level options = all
+
+    selected_subcat = st.multiselect(
         "Select Sub-Category:",
-        options=st.session_state["f_subcat"],
-        default=st.session_state["f_subcat"],
+        options=options_subcat,
+        default=options_subcat,
     )
+
+    if selected_subcat != ['**ALL**']:
+        st.session_state["f_subcat"] = selected_subcat
+
 
     # update segment options based on department and category and subcat selections
     st.session_state["f_segment"] = df_all[
@@ -168,11 +198,20 @@ with st.expander("Filter data:"):
         & (df_all["subcategory"].isin(st.session_state["f_subcat"]))
     ]["segment"].unique()
 
-    st.session_state["f_segment"] = st.multiselect(
+    sa_segment = st.checkbox("Select all Segments", value=True)
+    if sa_segment:
+        options_segment = ['**ALL**']
+    else:
+        options_segment=st.session_state["f_segment"].copy()  # top level options = all
+
+    selected_segment = st.multiselect(
         "Select Segment:",
-        options=st.session_state["f_segment"],
-        default=st.session_state["f_segment"],
+        options=options_segment,
+        default=options_segment,
     )
+
+    if selected_segment != ['**ALL**']:
+        st.session_state["f_segment"] = selected_segment
 
     # update article options based on department and category and cubcat and segment selections
     st.session_state["f_article"] = df_all[
@@ -182,12 +221,21 @@ with st.expander("Filter data:"):
         & (df_all["segment"].isin(st.session_state["f_segment"]))
     ]["article"].unique()
 
-    st.session_state["f_article"] = st.multiselect(
+    sa_article = st.checkbox("Select all Articles", value=True)
+    if sa_article:
+        options_article = ['**ALL**']
+    else:
+        options_article=st.session_state["f_article"].copy()  # top level options = all
+
+
+    selected_article = st.multiselect(
         "Select Article:",
-        options=st.session_state["f_article"],
-        default=st.session_state["f_article"],
+        options=options_article,
+        default=options_article,
     )
 
+    if selected_article != ['**ALL**']:
+        st.session_state["f_article"] = selected_article
 
 # df_filtered is the df based on dropdown selections
 df_filtered = df_combined[
@@ -214,12 +262,30 @@ with st.expander("Scenario modelling:"):
     #with st.form(key='my_form'):
     #with st.expander("Scenario modelling:"):
     #st.sidebar.markdown("**Make adjustments:**")
-    f_date = st.slider(
+    # f_date = st.slider(
+    #     "Select date:",
+    #     # value=(min(df['date']), max(df['date'])),
+    #     value=(datetime.date(min(df["date"])), datetime.date(max(df["date"]))),
+    #     step=timedelta(days=7),
+    # )
+
+    f_date_from = st.date_input(
         "Select date:",
-        # value=(min(df['date']), max(df['date'])),
-        value=(datetime.date(min(df["date"])), datetime.date(max(df["date"]))),
-        step=timedelta(days=7),
+        key="f_date_from",
+        value=datetime.date(min(df["date"])), 
+        min_value=datetime.date(min(df["date"])), 
+        max_value=datetime.date(max(df["date"])),
     )
+
+    f_date_to = st.date_input(
+        "Select date:",
+        key="f_date_to",
+        value=datetime.date(max(df["date"])), 
+        min_value=datetime.date(min(df["date"])), 
+        max_value=datetime.date(max(df["date"])),
+    )
+
+    f_date = (f_date_from, f_date_to)
 
     f_var = st.selectbox(
         "Select variable(s):",
