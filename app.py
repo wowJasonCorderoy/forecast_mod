@@ -84,15 +84,15 @@ def make_changelog_Changes(df=df_all, changelog=st.session_state.df_changelog):
         change_i_f_article = change_i['article']
 
         # Expand all ["**ALL**"] entries
-        if change_i_f_dept == ["**ALL**"]:
+        if (np.array(change_i_f_dept) == "**ALL**").all():
             change_i_f_dept = st.session_state["all_f_dept"].copy()
-        if change_i_f_cat == ["**ALL**"]:
+        if (np.array(change_i_f_cat) == "**ALL**").all():
             change_i_f_cat = st.session_state["all_f_cat"].copy()
-        if change_i_f_subcat == ["**ALL**"]:
+        if (np.array(change_i_f_subcat) == "**ALL**").all():
             change_i_f_subcat = st.session_state["all_f_subcat"].copy()
-        if change_i_f_segment == ["**ALL**"]:
+        if (np.array(change_i_f_segment) == "**ALL**").all():
             change_i_f_segment = st.session_state["all_f_segment"].copy()
-        if change_i_f_article == ["**ALL**"]:
+        if (np.array(change_i_f_article) == "**ALL**").all():
             change_i_f_article = st.session_state["all_f_article"].copy()
 
 
