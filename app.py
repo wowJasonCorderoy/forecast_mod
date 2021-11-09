@@ -350,11 +350,11 @@ with st.expander("Scenario modelling:"):
             .merge(pd.DataFrame({"operation": [f_op]}), how="cross")
             .merge(pd.DataFrame({"operand": [f_val]}), how="cross")
             .merge(pd.DataFrame({"explanation": [f_explained]}), how="cross")
-            .merge(pd.DataFrame({"dept": [options_dept]}), how="cross")
-            .merge(pd.DataFrame({"cat": [options_cat]}), how="cross")
-            .merge(pd.DataFrame({"subcat": [options_subcat]}), how="cross")
-            .merge(pd.DataFrame({"segment": [options_segment]}), how="cross")
-            .merge(pd.DataFrame({"article": [options_article]}), how="cross")
+            .merge(pd.DataFrame({"dept": [selected_dept]}), how="cross")
+            .merge(pd.DataFrame({"cat": [selected_cat]}), how="cross")
+            .merge(pd.DataFrame({"subcat": [selected_subcat]}), how="cross")
+            .merge(pd.DataFrame({"segment": [selected_segment]}), how="cross")
+            .merge(pd.DataFrame({"article": [selected_article]}), how="cross")
         )
         # have to work with session state so that dateframe persists between reruns
         st.session_state.df_changelog = pd.concat(
@@ -457,7 +457,7 @@ with st.expander("Changelog:"):
         st.session_state.df_changelog = pd.read_json(uploaded_file_changelog)
         st.session_state.df_changelog['date_from'] = [x.date() for x in pd.to_datetime(st.session_state.df_changelog['date_from'])]
         st.session_state.df_changelog['date_to'] = [x.date() for x in pd.to_datetime(st.session_state.df_changelog['date_to'])]
-        make_changelog_Changes()
+        #make_changelog_Changes()
 
     st.download_button(
         "Download changelog (JSON)",
