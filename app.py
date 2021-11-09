@@ -76,16 +76,36 @@ def make_changelog_Changes(df=df_all, changelog=st.session_state.df_changelog):
     copy_df = df_all.copy()
     for i in range(len(st.session_state.df_changelog)):
         change_i = st.session_state.df_changelog.iloc[i]
+
+        change_i_f_dept = change_i['dept']
+        change_i_f_cat = change_i['cat']
+        change_i_f_subcat = change_i['subcat']
+        change_i_f_segment = change_i['segment']
+        change_i_f_article = change_i['article']
+
+        # Expand all ["**ALL**"] entries
+        if change_i_f_dept == ["**ALL**"]:
+            change_i_f_dept = st.session_state["all_f_dept"].copy()
+        if change_i_f_cat == ["**ALL**"]:
+            change_i_f_cat = st.session_state["all_f_cat"].copy()
+        if change_i_f_subcat == ["**ALL**"]:
+            change_i_f_subcat = st.session_state["all_f_subcat"].copy()
+        if change_i_f_segment == ["**ALL**"]:
+            change_i_f_segment = st.session_state["all_f_segment"].copy()
+        if change_i_f_article == ["**ALL**"]:
+            change_i_f_article = st.session_state["all_f_article"].copy()
+
+
         # split into a to be changed and not to be changed df
         # changes_df = copy_df[(copy_df['date'] >= change_i['date_from']) & (copy_df['date'] <= change_i['date_to'])]
         # no_changes_df = copy_df[~((copy_df['date'] >= change_i['date_from']) & (copy_df['date'] <= change_i['date_to']))]
         changes_df = copy_df[
             (
-                (copy_df["department"].isin(st.session_state["f_dept"]))
-                & (copy_df["category"].isin(st.session_state["f_cat"]))
-                & (copy_df["subcategory"].isin(st.session_state["f_subcat"]))
-                & (copy_df["segment"].isin(st.session_state["f_segment"]))
-                & (copy_df["article"].isin(st.session_state["f_article"]))
+                (copy_df["department"].isin(change_i_f_dept))
+                & (copy_df["category"].isin(change_i_f_cat))
+                & (copy_df["subcategory"].isin(change_i_f_subcat))
+                & (copy_df["segment"].isin(change_i_f_segment))
+                & (copy_df["article"].isin(change_i_f_article))
                 & (copy_df["date"] >= pd.to_datetime(change_i["date_from"]))
                 & (copy_df["date"] <= pd.to_datetime(change_i["date_to"]))
             )
@@ -93,11 +113,11 @@ def make_changelog_Changes(df=df_all, changelog=st.session_state.df_changelog):
         # no_changes_df = copy_df[~((copy_df['date'] >= pd.to_datetime( change_i['date_from'])) & (copy_df['date'] <= pd.to_datetime(change_i['date_to'])))]
         no_changes_df = copy_df[
             ~(
-                (copy_df["department"].isin(st.session_state["f_dept"]))
-                & (copy_df["category"].isin(st.session_state["f_cat"]))
-                & (copy_df["subcategory"].isin(st.session_state["f_subcat"]))
-                & (copy_df["segment"].isin(st.session_state["f_segment"]))
-                & (copy_df["article"].isin(st.session_state["f_article"]))
+                (copy_df["department"].isin(change_i_f_dept))
+                & (copy_df["category"].isin(change_i_f_cat))
+                & (copy_df["subcategory"].isin(change_i_f_subcat))
+                & (copy_df["segment"].isin(change_i_f_segment))
+                & (copy_df["article"].isin(change_i_f_article))
                 & (copy_df["date"] >= pd.to_datetime(change_i["date_from"]))
                 & (copy_df["date"] <= pd.to_datetime(change_i["date_to"]))
             )
@@ -330,11 +350,11 @@ with st.expander("Scenario modelling:"):
             .merge(pd.DataFrame({"operation": [f_op]}), how="cross")
             .merge(pd.DataFrame({"operand": [f_val]}), how="cross")
             .merge(pd.DataFrame({"explanation": [f_explained]}), how="cross")
-            .merge(pd.DataFrame({"dept": [st.session_state["f_dept"]]}), how="cross")
-            .merge(pd.DataFrame({"cat": [st.session_state["f_cat"]]}), how="cross")
-            .merge(pd.DataFrame({"subcat": [st.session_state["f_subcat"]]}), how="cross")
-            .merge(pd.DataFrame({"segment": [st.session_state["f_segment"]]}), how="cross")
-            .merge(pd.DataFrame({"article": [st.session_state["f_article"]]}), how="cross")
+            .merge(pd.DataFrame({"dept": [options_dept]}), how="cross")
+            .merge(pd.DataFrame({"cat": [options_cat]}), how="cross")
+            .merge(pd.DataFrame({"subcat": [options_subcat]}), how="cross")
+            .merge(pd.DataFrame({"segment": [options_segment]}), how="cross")
+            .merge(pd.DataFrame({"article": [options_article]}), how="cross")
         )
         # have to work with session state so that dateframe persists between reruns
         st.session_state.df_changelog = pd.concat(
