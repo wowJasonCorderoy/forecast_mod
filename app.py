@@ -162,7 +162,7 @@ with st.expander("Filter data:"):
     selected_dept = st.multiselect(
         "Select Department:",
         options=options_dept,
-        default=options_dept,
+        default=options_dept if (np.array(options_dept) == "**ALL**").all() else [],
     )
 
     if selected_dept != ['**ALL**']:
@@ -182,7 +182,7 @@ with st.expander("Filter data:"):
     selected_cat = st.multiselect(
         "Select Category:",
         options=options_cat,
-        default=options_cat,
+        default=options_cat if (np.array(options_cat) == "**ALL**").all() else [],
     )
 
     if selected_cat != ['**ALL**']:
@@ -204,7 +204,7 @@ with st.expander("Filter data:"):
     selected_subcat = st.multiselect(
         "Select Sub-Category:",
         options=options_subcat,
-        default=options_subcat,
+        default=options_subcat if (np.array(options_subcat) == "**ALL**").all() else [],
     )
 
     if selected_subcat != ['**ALL**']:
@@ -227,7 +227,7 @@ with st.expander("Filter data:"):
     selected_segment = st.multiselect(
         "Select Segment:",
         options=options_segment,
-        default=options_segment,
+        default=options_segment if (np.array(options_segment) == "**ALL**").all() else [],
     )
 
     if selected_segment != ['**ALL**']:
@@ -251,7 +251,7 @@ with st.expander("Filter data:"):
     selected_article = st.multiselect(
         "Select Article:",
         options=options_article,
-        default=options_article,
+        default=options_article if (np.array(options_article) == "**ALL**").all() else [],
     )
 
     if selected_article != ['**ALL**']:
