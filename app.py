@@ -162,7 +162,7 @@ with st.expander("Filter data:"):
     selected_dept = st.multiselect(
         "Select Department:",
         options=options_dept,
-        default=options_dept if (np.array(options_dept) == "**ALL**").all() else [],
+        default=options_dept[0],
     )
 
     if selected_dept != ['**ALL**']:
@@ -182,7 +182,7 @@ with st.expander("Filter data:"):
     selected_cat = st.multiselect(
         "Select Category:",
         options=options_cat,
-        default=options_cat if (np.array(options_cat) == "**ALL**").all() else [],
+        default=options_cat[0],
     )
 
     if selected_cat != ['**ALL**']:
@@ -204,7 +204,7 @@ with st.expander("Filter data:"):
     selected_subcat = st.multiselect(
         "Select Sub-Category:",
         options=options_subcat,
-        default=options_subcat if (np.array(options_subcat) == "**ALL**").all() else [],
+        default=options_subcat[0],
     )
 
     if selected_subcat != ['**ALL**']:
@@ -227,7 +227,7 @@ with st.expander("Filter data:"):
     selected_segment = st.multiselect(
         "Select Segment:",
         options=options_segment,
-        default=options_segment if (np.array(options_segment) == "**ALL**").all() else [],
+        default=options_segment[0],
     )
 
     if selected_segment != ['**ALL**']:
@@ -251,7 +251,7 @@ with st.expander("Filter data:"):
     selected_article = st.multiselect(
         "Select Article:",
         options=options_article,
-        default=options_article if (np.array(options_article) == "**ALL**").all() else [],
+        default=options_article[0],
     )
 
     if selected_article != ['**ALL**']:
@@ -400,7 +400,8 @@ else:  # normlize time!
         dat_tmp = fig_multi_data[i]
         maxi = max(dat_tmp)
         mini = min(dat_tmp)
-        fig_multi_data[i] = [(x - mini) / (maxi - mini) for x in dat_tmp]
+        #fig_multi_data[i] = [(x - mini) / (maxi - mini) for x in dat_tmp]
+        fig_multi_data[i] = [np.nan for x in dat_tmp] if (maxi-mini) == 0 else [(x - mini) / (maxi - mini) for x in dat_tmp]
     # fig_multi_data['sales'] = [x/(max(dat)-min(dat)) for x in fig_multi_data['sales']]
     # fig_multi_data['qty'] = [x/(max(dat)-min(dat)) for x in fig_multi_data['qty']]
     # fig_multi_data['asp'] = [x/(max(dat)-min(dat)) for x in fig_multi_data['asp']]
