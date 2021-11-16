@@ -24,6 +24,7 @@ if "df_changelog" not in st.session_state:
     st.session_state["df_changelog"] = pd.DataFrame(
         columns=[
             "change_request_dt",
+            "scenario_name",
             "date_from",
             "date_to",
             "variable",
@@ -331,6 +332,7 @@ with st.expander("Scenario modelling:"):
             #f"Function:\n{f_var} {f_op} {f_val}\n to be applied to dates:\n{f_date[0]} to {f_date[1]}"
         #)
 
+    f_scenario_name = st.text_input("Write a scenario name (used to summarize and identify each scenario)")
     f_explained = st.text_input("Write an explanation")
 
 # on submit update change log
@@ -342,6 +344,7 @@ with st.expander("Scenario modelling:"):
         c_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         df_current_changes = (
             pd.DataFrame({"change_request_dt": [c_datetime]})
+            .merge(pd.DataFrame({"scenario_name": [f_scenario_name]}), how="cross")
             .merge(
                 pd.DataFrame({"date_from": [f_date[0]], "date_to": [f_date[1]]}),
                 how="cross",
@@ -482,26 +485,31 @@ with st.expander("Changelog:"):
         except:
             return default
 
-    d_index = st.number_input(
+    # d_index = st.number_input(
+        # "Enter index to delete:",
+        # step=1,
+        # min_value=0,
+        # max_value=try_or(lambda: np.max(list(st.session_state.df_changelog.index)), 0),
+        # format="%i",
+    # )
+
+    d_index = st.multiselect(
         "Enter index to delete:",
-        step=1,
-        min_value=0,
-        max_value=try_or(lambda: np.max(list(st.session_state.df_changelog.index)), 0),
-        format="%i",
+        options=st.session_state.df_changelog.index,
+        default=[],
     )
 
     def dl_ch_i():
-        if dl_ch_btn:
-            try:
-                st.session_state.df_changelog = st.session_state.df_changelog.drop(
-                    d_index
-                )
-            except:
-                pass
+        try:
+            for i in d_index:
+                st.session_state.df_changelog.drop(index=i, inplace=True)
+        except:
+            pass
 
     
     # show_ch_btn = st.checkbox("show change log")
     dl_ch_btn = st.button("delete index from changelog", on_click=dl_ch_i)
+    #dl_ch_btn = st.button("delete index from changelog")
 
 # st.dataframe(df_changes.sort_values('date'))
 
