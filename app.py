@@ -75,7 +75,13 @@ if "all_f_dept" not in st.session_state:
 @st.cache()
 def make_changelog_Changes(df=df_all, changelog=st.session_state.df_changelog):
     copy_df = df_all.copy()
+    impact_summary_dict = {}
     for i in range(len(st.session_state.df_changelog)):
+        old_sales = copy_df.sales.sum()
+        old_cogs = copy_df.cogs.sum()
+        old_qty = copy_df.qty.sum()
+        old_gp = copy_df.gross_profit.sum()
+
         change_i = st.session_state.df_changelog.iloc[i]
 
         change_i_f_dept = change_i['dept']
@@ -133,10 +139,23 @@ def make_changelog_Changes(df=df_all, changelog=st.session_state.df_changelog):
         # update sales given qty and asp
         copy_df["sales"] = copy_df["qty"] * copy_df["asp"]
         copy_df["gross_profit"] = copy_df["sales"] - copy_df["cogs"]
-    return copy_df
+
+        new_sales = copy_df.sales.sum()
+        new_cogs = copy_df.cogs.sum()
+        new_qty = copy_df.qty.sum()
+        new_gp = copy_df.gross_profit.sum()
+
+        sales_diff = new_sales-old_sales
+        cogs_diff = new_cogs-old_cogs
+        qty_diff = new_qty-old_qty
+        gp_diff = new_gp-old_gp
+        impact_summary_dict[change_i.scenario_name+"("+str(i)+")"] = {"sales_diff":sales_diff, "cogs_diff":cogs_diff,"qty_diff":qty_diff,"gp_diff":gp_diff}
+    return (copy_df,impact_summary_dict)
 
 
-df_changes = make_changelog_Changes()
+df_changes, impact_summary = make_changelog_Changes()
+df_impact_summary = pd.DataFrame(impact_summary)
+
 
 # df_combined combines original df and changes
 df_combined = df_all.merge(
@@ -452,6 +471,11 @@ with st.expander("View line plots:", False):
 # if show_ch_btn:
 # st.dataframe(st.session_state.df_changelog)
 
+with st.expander("View Scenario summary:", False):
+    for i in range(len(df_impact_summary)):
+        plotDat = df_impact_summary.iloc[i]
+        fig_scenario_summary = px.bar(plotDat)
+        st.plotly_chart(fig_scenario_summary)
 
 with st.expander("Changelog:"):
 
